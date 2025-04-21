@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Entscheidungs App (v0.1.0)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css"> 
+</head>
+
+<body>
+  <div id="startup-screen">
+    <div id="startup-box">
+      <div class="startup-branding">
+        <span class="app-logo"><i class="fas fa-briefcase"></i></span>
+        <span class="app-title">HR BP Tool</span>
+      </div>
+      <div class="input-group">
+        <label for="hrbp-name">Ihr Name:</label>
+        <input type="text" id="hrbp-name" name="hrbp-name" required>
+      </div>
+      <div class="input-group">
+        <label for="hrbp-number">Mitarbeiternummer:</label>
+        <input type="text" id="hrbp-number" name="hrbp-number" required>
+      </div>
+      <p id="startup-error"></p>
+      <button id="start-button">Starten</button>
+    </div>
+  </div>
+
+  <div id="main-app-area" class="app-container">
+    <header id="top-menu">
+      <div class="app-branding">
+        <span class="app-logo"><i class="fas fa-briefcase"></i></span>
+        <span class="app-title">HR BP Tool</span>
+        <button id="add-employee-button" aria-label="Mitarbeiter hinzufügen">
+          <i class="fas fa-plus"></i><span>Neu</span>
+        </button>
+      </div>
+      <div class="user-menu">
+        <div id="user-menu-trigger">
+          <div id="user-badge"><i class="fas fa-user-circle"></i></div>
+          <div id="user-info">
+            <strong id="user-name-display"></strong>
+            <span id="user-number-display"></span>
+          </div>
+        </div>
+        <div id="logout-dropdown" class="hidden">
+          <button id="logout-button">
+            <i class="fas fa-sign-out-alt"></i> Ausloggen
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div id="card-stack" class="card-stack"></div>
+      <div id="no-more-cards" class="hidden">
+        <p>Keine weiteren Mitarbeiterakten zu prüfen!</p>
+        <button id="reset-button" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Neu starten
+        </button>
+      </div>
+      <div id="action-buttons" class="action-buttons">
+        <button class="action-button abmahnung" id="abmahnung-button" aria-label="Abmahnung erteilen"> <i
+            class="fas fa-exclamation-triangle"></i> </button>
+        <button class="action-button fire" id="fire-button" aria-label="Mitarbeiter kündigen"> <i
+            class="fas fa-user-slash"></i> </button>
+        <button class="action-button raise" id="raise-button" aria-label="Lob"> <i class="fas fa-thumbs-up"></i>
+        </button>
+        <button class="action-button put-back" id="put-back-button" aria-label="Zurücklegen"> <i
+            class="fas fa-undo"></i> </button>
+      </div>
+    </main>
+
+    <aside id="swipe-history">
+      <div class="history-section">
+        <h2><i class="fas fa-exclamation-triangle text-orange-600"></i> Abmahnungen <span id="abmahnungen-count"
+            class="history-count">0</span></h2>
+      </div>
+      <div class="history-section">
+        <h2><i class="fas fa-user-slash text-red-600"></i> Gekündigt <span id="fired-count"
+            class="history-count">0</span></h2>
+      </div>
+      <div class="history-section">
+        <h2><i class="fas fa-thumbs-up text-green-600"></i> Erhöhungen <span id="raised-count"
+            class="history-count">0</span></h2>
+      </div>
+    </aside>
+
+    <div id="approval-notification"
+      class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 hidden opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none">
+      <div id="approval-box"
+        class="relative z-10 p-8 rounded-lg shadow-xl text-center text-white transform scale-0 transition-transform duration-300 ease-out max-w-[90%] w-[400px]">
+        <h2 id="approval-text" class="text-3xl font-bold mb-4">Entscheidung genehmigt!</h2>
+        <p id="approval-employee-name" class="text-lg mb-6">Aktion für [Name] genehmigt.</p>
+        <button id="close-approval-button"
+          class="mt-4 px-6 py-2 bg-white text-gray-700 font-semibold rounded-full hover:bg-gray-200 transition">
+          Weiter
+        </button>
+      </div>
+    </div>
+
+    <div id="add-employee-modal" class="fixed inset-0 bg-black bg-opacity-60 items-center justify-center z-70">
+      <div id="add-employee-box">
+        <div class="modal-scrollable-content">
+          <h2>Neuen Fall/Mitarbeiter hinzufügen</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+            <div class="input-group md:col-span-2">
+              <label for="newName">Name:</label>
+              <input type="text" id="newName" required>
+            </div>
+            <div class="input-group">
+              <label for="newJobTitle">Position:</label>
+              <input type="text" id="newJobTitle" required autocomplete="off">
+              <div id="jobTitle-suggestions" class="suggestions-dropdown hidden"></div>
+            </div>
+            <div class="input-group">
+              <label for="newDepartment">Abteilung:</label>
+              <input type="text" id="newDepartment" required autocomplete="off">
+              <div id="department-suggestions" class="suggestions-dropdown hidden"></div>
+            </div>
+            <div class="input-group">
+              <label for="newYears">Jahre im Unternehmen:</label>
+              <input type="number" id="newYears" required min="0">
+            </div>
+            <div class="input-group">
+              <label for="newPerformance">Leistung (1-5):</label>
+              <input type="number" id="newPerformance" required min="1" max="5" step="0.1">
+            </div>
+            <div class="input-group md:col-span-2">
+              <label for="newSummary">Letzte Bewertung / Szenario Notizen:</label>
+              <textarea id="newSummary" rows="3" required></textarea>
+            </div>
+            <div class="input-group md:col-span-2">
+              <label for="newScenario">Aktuelles Szenario (Optional):</label>
+              <input type="text" id="newScenario">
+            </div>
+          </div>
+          <p id="add-employee-error"></p>
+        </div>
+        <div class="modal-actions">
+          <button id="cancel-add-button" class="modal-button">Abbrechen</button>
+          <button id="save-employee-button" class="modal-button">Speichern</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="script.js"></script> 
+
+</body>
+
+</html>
