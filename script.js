@@ -66,6 +66,7 @@ const approvalText = document.getElementById("approval-text");
 const approvalEmployeeName = document.getElementById("approval-employee-name");
 const closeApprovalButton = document.getElementById("close-approval-button");
 const addEmployeeButton = document.getElementById("add-employee-button");
+const resetEmployeesButton = document.getElementById("reset-employees-button");
 const addEmployeeModal = document.getElementById("add-employee-modal");
 const addEmployeeBox = document.getElementById("add-employee-box");
 const saveEmployeeButton = document.getElementById("save-employee-button");
@@ -80,6 +81,20 @@ const newSummaryInput = document.getElementById("newSummary");
 const newScenarioInput = document.getElementById("newScenario");
 const jobTitleSuggestions = document.getElementById("jobTitle-suggestions");
 const departmentSuggestions = document.getElementById("department-suggestions");
+
+const mobileMenuButton = document.getElementById("mobile-menu-button");
+const mobileMenuDropdown = document.getElementById("mobile-menu-dropdown");
+const mobileHistoryContent = document.getElementById("mobile-history-content");
+const mobileAddButton = document.getElementById("mobile-add-button");
+const mobileResetButton = document.getElementById("mobile-reset-button");
+const mobileLogoutButton = document.getElementById("mobile-logout-button");
+const mobileUserNameDisplay = document.getElementById(
+  "mobile-user-name-display"
+);
+const mobileUserNumberDisplay = document.getElementById(
+  "mobile-user-number-display"
+);
+
 // Required fields for validation
 const requiredInputs = [
   newNameInput,
@@ -170,7 +185,7 @@ function createCardElement(cardInfo) {
   card.appendChild(fireIndicator);
   const raiseIndicator = document.createElement("div");
   raiseIndicator.classList.add("swipe-indicator", "raise");
-  raiseIndicator.innerHTML = `<i class="fas fa-thumbs-up"></i> Erhöhung`;
+  raiseIndicator.innerHTML = `<i class="fas fa-thumbs-up"></i> Lob`;
   card.appendChild(raiseIndicator);
   const abmahnungIndicator = document.createElement("div");
   abmahnungIndicator.classList.add("swipe-indicator", "abmahnung");
@@ -404,8 +419,8 @@ function showApprovalNotification(type, employeeName) {
   let message = `Aktion für ${employeeName} genehmigt.`;
   let boxClass = "";
   if (type === "raise") {
-    title = "Erhöhung genehmigt!";
-    message = `Erhöhung für ${employeeName} hat Zustimmung des Vorgesetzten.`;
+    title = "Lob genehmigt!";
+    message = `Lob für ${employeeName} hat Zustimmung des Vorgesetzten.`;
     boxClass = "raise-approved";
   } else if (type === "fire") {
     title = "Kündigung genehmigt";
@@ -643,6 +658,8 @@ function initializeApp() {
   mainAppArea.style.display = "none";
   const savedName = localStorage.getItem("hrbpName");
   const savedNumber = localStorage.getItem("hrbpNumber");
+
+  cardData = shuffleArray(cardData);
   if (savedName && savedNumber) {
     console.log("Saved user found:", savedName);
     hrbpName = savedName;
@@ -876,6 +893,13 @@ addEmployeeModal.addEventListener("click", (event) => {
   }
 });
 
+resetEmployeesButton.addEventListener("click", () => {
+  loadCards();
+  noMoreCardsDiv.classList.add("hidden");
+  actionButtonsDiv.classList.remove("hidden");
+  hideApprovalNotification();
+});
+
 // Suggestions Listeners
 newJobTitleInput.addEventListener("input", () =>
   showSuggestions(newJobTitleInput, jobTitleSuggestions, uniqueJobTitles)
@@ -897,6 +921,20 @@ newDepartmentInput.addEventListener("keydown", (e) =>
   handleSuggestionKeyDown(e, newDepartmentInput, departmentSuggestions)
 );
 
+mobileMenuButton.addEventListener("click", toggleMobileMenu);
+mobileAddButton.addEventListener("click", () => {
+  openAddModal();
+  toggleMobileMenu();
+}); // Close menu after action
+mobileResetButton.addEventListener("click", () => {
+  resetApp();
+  toggleMobileMenu();
+}); // Close menu after action
+mobileLogoutButton.addEventListener("click", () => {
+  logout();
+  toggleMobileMenu();
+}); // Close menu after action
+
 // Remove error style on input
 requiredInputs.forEach((input) => {
   input.addEventListener("input", () => {
@@ -905,6 +943,71 @@ requiredInputs.forEach((input) => {
     }
   });
 });
+
+function shuffleArray(array) {
+  const shuffledArray = [...array];
+  let currentIndex = shuffledArray.length;
+  let randomIndex;
+
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [shuffledArray[currentIndex], shuffledArray[randomIndex]] = [
+      shuffledArray[randomIndex],
+      shuffledArray[currentIndex],
+    ];
+  }
+
+  return shuffledArray;
+}
+
+// --- Mobile Menu Logic ---
+function toggleMobileMenu() {
+  const isVisible = !mobileMenuDropdown.classList.contains("hidden");
+  if (!isVisible) {
+    // Populate history before showing
+    populateMobileHistory();
+    // Populate user info
+    if (mobileUserNameDisplay) mobileUserNameDisplay.textContent = hrbpName;
+    if (mobileUserNumberDisplay)
+      mobileUserNumberDisplay.textContent = hrbpNumber;
+  }
+  mobileMenuDropdown.classList.toggle("hidden");
+  mobileMenuDropdown.classList.toggle("visible");
+}
+
+function populateMobileHistory() {
+  if (!mobileHistoryContent) return;
+  mobileHistoryContent.innerHTML = "<h3>Verlauf</h3>"; // Clear previous, add title
+  const sections = [
+    {
+      title: "Abmahnungen",
+      count: abmahnungenCount,
+      icon: "fa-exclamation-triangle",
+      color: "text-orange-600",
+    },
+    {
+      title: "Gekündigt",
+      count: firedCount,
+      icon: "fa-user-slash",
+      color: "text-red-600",
+    },
+    {
+      title: "Erhöhungen",
+      count: raisedCount,
+      icon: "fa-thumbs-up",
+      color: "text-green-600",
+    },
+  ];
+  sections.forEach((sec) => {
+    const sectionDiv = document.createElement("div");
+    sectionDiv.classList.add("history-section"); // Use existing styles (adjust if needed)
+    sectionDiv.innerHTML = `
+            <h2><i class="fas ${sec.icon} ${sec.color}"></i> ${sec.title} <span class="history-count">${sec.count}</span></h2>
+        `;
+    mobileHistoryContent.appendChild(sectionDiv);
+  });
+}
 
 // --- Initial Load ---
 window.onload = () => {
