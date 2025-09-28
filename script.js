@@ -419,16 +419,16 @@ function showApprovalNotification(type, employeeName) {
   let message = `Aktion für ${employeeName} genehmigt.`;
   let boxClass = "";
   if (type === "raise") {
-    title = "Lob genehmigt!";
+    title = "Match für Lob";
     message = `Lob für ${employeeName} hat Zustimmung des Vorgesetzten.`;
     boxClass = "raise-approved";
   } else if (type === "fire") {
-    title = "Kündigung genehmigt";
-    message = `Kündigungsprozess für ${employeeName} kann gestartet werden.`;
+    title = "Match für Kündigung";
+    message = `Der Vorgesetzte möchte auch kündingen: Kündigungsprozess für ${employeeName} gestartet.`;
     boxClass = "fire-approved";
   } else if (type === "abmahnung") {
-    title = "Abmahnung protokolliert";
-    message = `Abmahnung für ${employeeName} wurde dokumentiert.`;
+    title = "Abmahnung";
+    message = `Abmahnung für ${employeeName} wurde abgeschickt.`;
     boxClass = "abmahnung-logged";
   }
   approvalText.textContent = title;
@@ -942,6 +942,52 @@ requiredInputs.forEach((input) => {
       input.classList.remove("input-error");
     }
   });
+});
+
+document.addEventListener("keydown", (event) => {
+  if (!activeCard) return;
+
+  if (approvalNotification.classList.contains("show")) {
+    if (event.key === "Enter") {
+      hideApprovalNotification();
+    }
+    return;
+  }
+
+  if (approvalNotification.classList.contains("show")) return; // Don't allow while approval is shown
+
+  switch (event.key) {
+    case "ArrowRight":
+      if (!raiseButton.disabled) {
+        disableActionButtons();
+        swipe("raise", activeCard);
+      }
+      break;
+    case "ArrowLeft":
+      if (!fireButton.disabled) {
+        disableActionButtons();
+        swipe("fire", activeCard);
+      }
+      break;
+    case "ArrowUp":
+      if (!abmahnungButton.disabled) {
+        disableActionButtons();
+        swipe("abmahnung", activeCard);
+      }
+      break;
+    case "ArrowDown":
+      if (!putBackButton.disabled) {
+        disableActionButtons();
+        putBackCard(activeCard);
+      }
+      break;
+    case " ":
+      event.preventDefault();
+      toggleFlip(activeCard);
+      break;
+    default:
+      break;
+  }
 });
 
 function shuffleArray(array) {
