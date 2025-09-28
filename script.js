@@ -664,10 +664,12 @@ function initializeApp() {
     console.log("Saved user found:", savedName);
     hrbpName = savedName;
     hrbpNumber = savedNumber;
-    proceedToMainApp();
   } else {
-    console.log("No saved user found, showing startup.");
+    console.log("No saved user found.");
+    hrbpName = "HR BP";
+    hrbpNumber = "112233";
   }
+  proceedToMainApp();
 }
 function proceedToMainApp() {
   console.log("Proceeding to main app...");
