@@ -1,6 +1,7 @@
 # HR BP Tinder
 
 HR BP Tinder is a playful HR tool for quickly reviewing employee profiles with a Tinder-like swipe interface.
+Available on: https://nickhero.github.io/hrbptinder/
 
 ## Features
 
